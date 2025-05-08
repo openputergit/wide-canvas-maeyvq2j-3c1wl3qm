@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureAuction - Safe and Transparent Online Bidding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .auction-card:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+        #toast {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Toast Notification -->
+    <div id="toast" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="#" class="text-2xl font-bold text-blue-600">SecureAuction</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('home')">Home</a>
+                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('auctions')">Auctions</a>
+                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('myBids')">My Bids</a>
+                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('myAuctions')">My Auctions</a>
+                    <a href="#" class="px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('support')">Support</a>
+                    <button id="loginBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" onclick="showPage('login')">Login</button>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button class="text-gray-600 hover:text-gray-900" onclick="toggleMobileMenu()">
+                        <i class="bi bi-list text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('home')">Home</a>
+                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('auctions')">Auctions</a>
+                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('myBids')">My Bids</a>
+                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('myAuctions')">My Auctions</a>
+                <a href="#" class="block px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('support')">Support</a>
+                <button class="w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600" onclick="showPage('login')">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dynamic Content Pages -->
+    <div id="pageContent">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <div class="max-w-7xl mx-auto px-4 py-12">
+                <h1 class="text-4xl font-bold text-center mb-8">Secure Online Auction System</h1>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <i class="bi bi-shield-check text-4xl text-blue-600"></i>
+                        <h3 class="text-xl font-semibold mt-4">Secure Bidding</h3>
+                        <p class="mt-2 text-gray-600">End-to-end encryption and blockchain verification for every bid.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <i class="bi bi-lightning text-4xl text-blue-600"></i>
+                        <h3 class="text-xl font-semibold mt-4">Real-time Updates</h3>
+                        <p class="mt-2 text-gray-600">Instant notifications and live bidding updates.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <i class="bi bi-graph-up text-4xl text-blue-600"></i>
+                        <h3 class="text-xl font-semibold mt-4">Fraud Prevention</h3>
+                        <p class="mt-2 text-gray-600">AI-powered monitoring and verification systems.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login" class="page hidden">
+            <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full space-y-8">
+                    <div>
+                        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+                    </div>
+                    <form class="mt-8 space-y-6" onsubmit="handleLogin(event)">
+                        <div class="rounded-md shadow-sm -space-y-px">
+                            <div>
+                                <input id="email-login" name="email" type="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Email address">
+                            </div>
+                            <div>
+                                <input id="password-login" name="password" type="password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Password">
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm">
+                                <a href="#" class="font-medium text-blue-600 hover:text-blue-500" onclick="showPage('forgotPassword')">Forgot your password?</a>
+                            </div>
+                            <div class="text-sm">
+                                <a href="#" class="font-medium text-blue-600 hover:text-blue-500" onclick="showPage('register')">Register new account</a>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Sign in
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="register" class="page hidden">
+            <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full space-y-8">
+                    <div>
+                        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Create new account</h2>
+                    </div>
+                    <form class="mt-8 space-y-6" onsubmit="handleRegister(event)">
+                        <div class="rounded-md shadow-sm -space-y-px">
+                            <div>
+                                <input id="name-register" name="name" type="text" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Full name">
+                            </div>
+                            <div>
+                                <input id="email-register" name="email" type="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Email address">
+                            </div>
+                            <div>
+                                <input id="password-register" name="password" type="password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Password">
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Register
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <a href="#" class="font-medium text-blue-600 hover:text-blue-500" onclick="showPage('login')">Already have an account? Sign in</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forgot Password Page -->
+        <div id="forgotPassword" class="page hidden">
+            <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full space-y-8">
+                    <div>
+                        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Reset your password</h2>
+                    </div>
+                    <form class="mt-8 space-y-6" onsubmit="handleForgotPassword(event)">
+                        <div>
+                            <input id="email-reset" name="email" type="email" required class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Email address">
+                        </div>
+                        <div>
+                            <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Send reset link
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <a href="#" class="font-medium text-blue-600 hover:text-blue-500" onclick="showPage('login')">Back to login</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auctions Page -->
+        <div id="auctions" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <h2 class="text-3xl font-bold mb-6">Active Auctions</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Sample Auction Cards -->
+                </div>
+            </div>
+        </div>
+
+        <!-- My Bids Page -->
+        <div id="myBids" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <h2 class="text-3xl font-bold mb-6">My Bids</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-500 uppercase tracking-wider">Item</th>
+                                <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-500 uppercase tracking-wider">Your Bid</th>
+                                <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 text-gray-500 uppercase tracking-wider">Time Left</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myBidsTable">
+                            <!-- Bid entries will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Auctions Page -->
+        <div id="myAuctions" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold">My Auctions</h2>
+                    <button onclick="showCreateAuctionModal()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Create New Auction</button>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6" id="myAuctionsGrid">
+                    <!-- My auctions will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Page -->
+        <div id="support" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <h2 class="text-3xl font-bold mb-6">Support & FAQ</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Frequently Asked Questions</h3>
+                        <div class="space-y-4">
+                            <div class="border-b pb-4">
+                                <h4 class="font-medium mb-2">How secure is the bidding system?</h4>
+                                <p class="text-gray-600">Our system uses end-to-end encryption and blockchain verification to ensure maximum security for all transactions.</p>
+                            </div>
+                            <div class="border-b pb-4">
+                                <h4 class="font-medium mb-2">What happens if I win an auction?</h4>
+                                <p class="text-gray-600">You'll receive immediate notification and detailed instructions for completing the purchase securely.</p>
+                            </div>
+                            <!-- Add more FAQ items as needed -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Contact Us</h3>
+                        <form onsubmit="handleSupport(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Name</label>
+                                <input type="text" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Message</label>
+                                <textarea required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" rows="4"></textarea>
+                            </div>
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store user state
+        let isLoggedIn = false;
+        let currentUser = null;
+
+        // Handle page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Show toast notification
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            toast.className = isSuccess ? 'bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg' : 'bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg';
+            document.getElementById('toast-message').textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Handle login
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('email-login').value;
+            const password = document.getElementById('password-login').value;
+            
+            // Simulate login (replace with actual authentication)
+            if (email && password) {
+                isLoggedIn = true;
+                currentUser = { email };
+                showToast('Successfully logged in!');
+                showPage('home');
+                document.getElementById('loginBtn').textContent = 'Logout';
+            }
+        }
+
+        // Handle registration
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('name-register').value;
+            const email = document.getElementById('email-register').value;
+            const password = document.getElementById('password-register').value;
+            
+            // Simulate registration (replace with actual registration logic)
+            if (name && email && password) {
+                showToast('Registration successful! Please login.');
+                showPage('login');
+            }
+        }
+
+        // Handle forgot password
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            const email = document.getElementById('email-reset').value;
+            
+            if (email) {
+                showToast('Password reset link sent to your email!');
+                showPage('login');
+            }
+        }
+
+        // Handle support form
+        function handleSupport(event) {
+            event.preventDefault();
+            showToast('Your message has been sent. We\'ll respond shortly!');
+        }
+
+        // Initialize sample data
+        function initializeAuctions() {
+            const sampleAuctions = [
+                {
+                    id: 1,
+                    title: "Vintage Watch",
+                    currentBid: 150,
+                    endTime: "2024-01-01",
+                    image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=300&q=80"
+                },
+                {
+                    id: 2,
+                    title: "Art Collection",
+                    currentBid: 500,
+                    endTime: "2024-01-02",
+                    image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=300&q=80"
+                },
+                {
+                    id: 3,
+                    title: "Antique Furniture",
+                    currentBid: 300,
+                    endTime: "2024-01-03",
+                    image: "https://images.unsplash.com/photo-1550226891-ef816aed4a98?auto=format&fit=crop&w=300&q=80"
+                }
+            ];
+
+            const auctionsContainer = document.querySelector('#auctions .grid');
+            sampleAuctions.forEach(auction => {
+                const card = createAuctionCard(auction);
+                auctionsContainer.appendChild(card);
+            });
+        }
+
+        // Create auction card
+        function createAuctionCard(auction) {
+            const div = document.createElement('div');
+            div.className = 'bg-white rounded-lg shadow-md overflow-hidden auction-card';
+            div.innerHTML = `
+                <img src="${auction.image}" alt="${auction.title}" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold">${auction.title}</h3>
+                    <p class="text-gray-600">Current Bid: $${auction.currentBid}</p>
+                    <p class="text-gray-600">Ends: ${auction.endTime}</p>
+                    <button onclick="placeBid(${auction.id})" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 w-full">Place Bid</button>
+                </div>
+            `;
+            return div;
+        }
+
+        // Place bid
+        function placeBid(auctionId) {
+            if (!isLoggedIn) {
+                showToast('Please login to place a bid', false);
+                showPage('login');
+                return;
+            }
+            showToast('Bid placed successfully!');
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeAuctions();
+            showPage('home');
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
